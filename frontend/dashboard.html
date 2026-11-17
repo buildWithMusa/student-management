@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #2563eb;
+            color: white;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 8px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
+
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: white;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    display: block;
+    text-decoration: none;
+}
+
+.dropdown-content a:hover {
+    background: #f1f5f9;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.results-card {
+    margin-top: 25px;
+    padding: 22px;
+    border-radius: 12px;
+}
+
+.results-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.results-heading h3 {
+    margin: 0 0 6px;
+}
+
+.results-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.view-results {
+    background: #1e3a8a;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 7px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.results-table th {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 14px;
+    font-size: 14px;
+}
+
+.results-table td {
+    padding: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.results-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🎓 Student Portal</h2>
+
+    <nav>
+        <div class="dropdown">
+            <button class="dropbtn" onclick="toggleAcademics()">
+                Academics ▼
+            </button>
+
+            <div id="academicsMenu" class="dropdown-content">
+                <a href="result-slip.html">Result Slip</a>
+            </div>
+        </div>
+    </nav>
+
+    <button onclick="logout()">Logout</button>
+</header>
+
+
+<main>
+    <div class="welcome">
+        <h1 id="studentName">Loading...</h1>
+        <p>Welcome to your student dashboard.</p>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <h3>My Profile</h3>
+            <p id="studentEmail"></p>
+        </div>
+
+        <div class="card">
+            <h3>Registration Number</h3>
+            <p id="studentReg"></p>
+        </div>
+
+        <div class="card">
+            <h3>My Course</h3>
+            <p id="studentCourse"></p>
+        </div>
+
+        <div class="card">
+    
+<div class="card results-card">
+    <div class="results-heading">
+        <div>
+            <h3>Academic Results</h3>
+            <p>View your academic performance</p>
+        </div>
+        <a href="result-slip.html" class="view-results">
+            View Result Slip
+        </a>
+    </div>
+
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Unit Code</th>
+                    <th>Marks (%)</th>
+                    <th>Semester</th>
+                    <th>Academic Year</th>
+                </tr>
+            </thead>
+
+            <tbody id="results">
+                <tr>
+                    <td colspan="4">Loading results...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+    </div>
+</main>
+
+<script>
+async function loadDashboard() {
+    const token = localStorage.getItem("studentToken");
+
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "http://127.0.0.1:8000/student-dashboard/",
+            {
+                headers: {
+                    "Authorization": "Token " + token
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to load student information.");
+        }
+
+        const student = await response.json();
+
+        document.getElementById("studentName").textContent =
+            "Welcome, " + student.name;
+
+        document.getElementById("studentEmail").textContent =
+            student.email;
+
+        document.getElementById("studentReg").textContent =
+            student.reg_number;
+
+        document.getElementById("studentCourse").textContent =
+            student.course;
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function loadResults() {
+    const token = localStorage.getItem("studentToken");
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/student-results/",
+        {
+            headers: {
+                "Authorization": "Token " + token
+            }
+        }
+    );
+
+    const results = await response.json();
+
+    const resultsContainer = document.getElementById("results");
+    resultsContainer.innerHTML = "";
+
+    if (!results.length) {
+        resultsContainer.innerHTML = `
+            <tr>
+                <td colspan="4">No academic results available.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    results.forEach(result => {
+        resultsContainer.innerHTML += `
+            <tr>
+                <td><strong>${result.unit_name}</strong></td>
+                <td>${result.marks ?? "Missing"}</td>
+                <td>${result.semester}</td>
+                <td>${result.academic_year}</td>
+            </tr>
+        `;
+    });
+}
+
+
+function logout() {
+    localStorage.removeItem("studentToken");
+    localStorage.removeItem("studentData");
+    window.location.href = "index.html";
+}
+function toggleAcademics() {
+    document.getElementById("academicsMenu").classList.toggle("show");
+}
+
+loadDashboard();
+loadResults();
+
+</script>
+</body>
+</html>

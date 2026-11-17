@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from snippets.models import Student
+from snippets.models import Student,Result
 
 
 class StudentSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,3 +35,22 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ["url", "id", "username", "students"]
+
+class ResultSerializer(serializers.ModelSerializer):
+    grade = serializers.ReadOnlyField()
+    description = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Result
+        fields = [
+            "id",
+            "student",
+            "unit_name",
+            "marks",
+            "grade",
+            "description",
+            "semester",
+            "academic_year",
+            "created",
+        ]
+        read_only_fields = ["id", "created", "grade", "description"]
