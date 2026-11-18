@@ -1,0 +1,107 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard</title>
+    <link rel="stylesheet" href="{% static 'snippets/lecturer.css' %}">
+</head>
+<body>
+
+    <header class="topbar">
+        <div>
+            <h2>Kisii University</h2>
+            <p>Lecturer Management Portal</p>
+        </div>
+
+        <button id="logoutButton" class="logout-button">
+            Logout
+        </button>
+    </header>
+
+    <main class="dashboard">
+
+        <section class="welcome">
+            <h1>Lecturer Dashboard</h1>
+            <p>Welcome, <span id="lecturerName">Lecturer</span></p>
+            <p>Staff Number: <strong id="staffNumber">Loading...</strong></p>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <h3>Assigned Units</h3>
+                <p id="totalUnits">0</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>My Assigned Units</h2>
+            <div id="unitsList">
+                Loading assigned units...
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Enter Student Marks</h2>
+
+            <form id="marksForm">
+
+                <label for="regNumber">Student Registration Number</label>
+                <input
+                    type="text"
+                    id="regNumber"
+                    placeholder="Enter student registration number"
+                    required
+                >
+
+                <label for="unitSelect">Select Unit</label>
+                <select id="unitSelect" required>
+                    <option value="">Select an assigned unit</option>
+                </select>
+
+                <label for="marks">Marks (0–100)</label>
+                <input
+                    type="number"
+                    id="marks"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    required
+                >
+
+                <label for="semester">Semester</label>
+                <input
+                    type="text"
+                    id="semester"
+                    placeholder="Example: Semester 1"
+                    required
+                >
+
+                <label for="academicYear">Academic Year</label>
+                <input
+                    type="text"
+                    id="academicYear"
+                    placeholder="Example: 2026/2027"
+                    required
+                >
+
+                <button type="submit" id="submitMarksButton">
+                    Submit Marks
+                </button>
+
+            </form>
+
+            <p id="marksMessage" class="message"></p>
+        </section>
+
+        <p class="notice">
+            Submitted marks remain pending until approved by the administrator.
+        </p>
+
+    </main>
+
+    <script src="{% static 'snippets/lecturer_dashboard.js' %}"></script>
+</body>
+</html>
