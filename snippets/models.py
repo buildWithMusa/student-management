@@ -21,11 +21,93 @@ class Student(models.Model):
 
 
 class Unit(models.Model):
+
+    UNIT_TYPES = [
+        ("CORE", "Core"),
+        ("ELECTIVE", "Elective"),
+    ]
+
     unit_code = models.CharField(max_length=30, unique=True)
     unit_name = models.CharField(max_length=200)
 
+    course = models.CharField(
+        max_length=200,
+        default="BSc Information Technology"
+    )
+
+    year_of_study = models.PositiveSmallIntegerField(default=3)
+
+    semester = models.CharField(
+        max_length=50,
+        default="Semester One"
+    )
+
+    academic_year = models.CharField(
+        max_length=20,
+        default="2026/2027"
+    )
+
+    unit_type = models.CharField(
+        max_length=10,
+        choices=UNIT_TYPES,
+        default="CORE"
+    )
+
     def __str__(self):
         return f"{self.unit_code} - {self.unit_name}"
+
+
+class UnitRegistration(models.Model):
+
+    REGISTRATION_STATUS = [
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+
+    student = models.ForeignKey(
+        Student,
+        related_name="unit_registrations",
+        on_delete=models.CASCADE
+    )
+
+    unit = models.ForeignKey(
+        Unit,
+        related_name="registrations",
+        on_delete=models.CASCADE
+    )
+
+    status = models.CharField(
+        max_length=10,
+        choices=REGISTRATION_STATUS,
+        default="PENDING"
+    )
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="reviewed_unit_registrations",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    rejection_reason = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "unit"],
+                name="unique_student_unit_registration"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.student.name} - {self.unit.unit_code}"
+
 
 
 class Lecturer(models.Model):

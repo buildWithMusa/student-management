@@ -8,11 +8,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header>
+    <h2>🎓 Kisii University</h2>
 
-    <header>
-        <h2>Kisii University Student Portal</h2>
-        <p>Academic Result Slip</p>
-    </header>
+    <div class="menu-container">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+        <div id="studentMenu" class="menu-content">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">My Profile</a>
+            <a href="result-slip.html">My Results</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+</header>
 
     <main class="result-container">
 
@@ -30,8 +39,8 @@
                 <label for="semester">Semester</label>
                 <select id="semester">
                     <option value="all">All Semesters</option>
-                    <option value="Semester 1">Semester 1</option>
-                    <option value="Semester 2">Semester 2</option>
+                    <option value="Semester One">Semester 1</option>
+                    <option value="Semester Two">Semester 2</option>
                 </select>
             </div>
 

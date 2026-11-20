@@ -53,6 +53,31 @@ path(
     views.review_result,
     name="review-result"
 ),
+path(
+    "student-available-units/",
+    views.student_available_units,
+    name="student-available-units"
+),
+path(
+    "student-register-units/",
+    views.student_register_units,
+    name="student-register-units"
+),
+path(
+    "student-unit-registrations/",
+    views.student_unit_registrations,
+    name="student-unit-registrations"
+),
+path(
+    "pending-unit-registrations/",
+    views.pending_unit_registrations,
+    name="pending-unit-registrations"
+),
+path(
+    "review-unit-registration/<int:registration_id>/",
+    views.review_unit_registration,
+    name="review-unit-registration"
+),
 
     path("", include(router.urls)),
 ]

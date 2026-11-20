@@ -1,0 +1,247 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f3f6fa;
+    color: #263445;
+    line-height: 1.6;
+}
+
+/* UNIVERSITY HEADER */
+header {
+    background: #102a43;
+    color: white;
+    padding: 18px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+
+header h2 {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* HAMBURGER MENU */
+.menu-container {
+    position: relative;
+}
+
+.menu-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 5px 12px;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: white;
+    min-width: 190px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.18);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.menu-content a {
+    display: block;
+    padding: 12px 17px;
+    color: #263445;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.menu-content a:hover {
+    background: #edf2f7;
+    color: #b38b2e;
+}
+
+.menu-content.show {
+    display: block;
+}
+
+/* MAIN RESULT CONTAINER */
+.result-container {
+    max-width: 1200px;
+    margin: 35px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+}
+
+.result-container > h2 {
+    color: #102a43;
+    font-size: 25px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #c5a04b;
+}
+
+/* FILTER SECTION */
+.filters {
+    display: flex;
+    align-items: end;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 22px;
+    margin-bottom: 25px;
+    background: #f5f8fc;
+    border: 1px solid #e1e8f0;
+    border-radius: 10px;
+}
+
+.filters > div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filters label {
+    display: block;
+    color: #34495e;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.filters select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #bdcbd9;
+    border-radius: 7px;
+    background: white;
+    color: #263445;
+    font-size: 15px;
+    cursor: pointer;
+    outline: none;
+}
+
+.filters select:focus {
+    border-color: #c5a04b;
+    box-shadow: 0 0 0 3px rgba(197,160,75,0.15);
+}
+
+.filters button {
+    background: #102a43;
+    color: white;
+    border: none;
+    padding: 13px 25px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.filters button:hover {
+    background: #c5a04b;
+    color: #102a43;
+}
+
+/* STUDENT INFORMATION */
+#studentInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 30px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #f8fafc;
+    border-left: 4px solid #c5a04b;
+    border-radius: 7px;
+    color: #34495e;
+    font-size: 14px;
+}
+
+/* RESULTS TABLE */
+.result-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.result-container thead {
+    background: #102a43;
+    color: white;
+}
+
+.result-container th {
+    padding: 16px 13px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.result-container td {
+    padding: 15px 13px;
+    border-bottom: 1px solid #e5eaf0;
+}
+
+.result-container tbody tr:nth-child(even) {
+    background: #f5f8fc;
+}
+
+.result-container tbody tr:hover {
+    background: #edf3f9;
+}
+
+.result-container tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+    .result-container {
+        margin: 18px 12px;
+        padding: 18px 12px;
+    }
+
+    header {
+        padding: 15px 18px;
+    }
+
+    header h2 {
+        font-size: 19px;
+    }
+
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .filters > div {
+        width: 100%;
+    }
+
+    .filters button {
+        width: 100%;
+    }
+
+    .result-container table {
+        min-width: 750px;
+    }
+
+    .result-container {
+        overflow-x: auto;
+    }
+
+    #studentInfo {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

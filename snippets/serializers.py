@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from snippets.models import Student, Result
+from snippets.models import Student, Result, Unit, UnitRegistration
 
 
 class StudentSerializer(serializers.HyperlinkedModelSerializer):
@@ -77,3 +77,37 @@ class ResultSerializer(serializers.ModelSerializer):
 
 class BulkStudentUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
+
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Unit
+        fields = [
+            "id",
+            "unit_code",
+            "unit_name",
+            "course",
+            "year_of_study",
+            "semester",
+            "academic_year",
+            "unit_type",
+        ]
+
+
+class UnitRegistrationSerializer(serializers.ModelSerializer):
+    unit = UnitSerializer(read_only=True)
+    student = serializers.StringRelatedField(read_only=True)
+    reviewed_by = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = UnitRegistration
+        fields = [
+            "id",
+            "student",
+            "unit",
+            "status",
+            "submitted_at",
+            "reviewed_by",
+            "reviewed_at",
+            "rejection_reason",
+        ]
+

@@ -73,9 +73,13 @@ function loadResults() {
     const filteredResults = allResults.filter(result => {
         const yearMatches = result.academic_year === selectedYear;
 
-        const semesterMatches =
-            selectedSemester === "all" ||
-            result.semester === selectedSemester;
+        const normalizeSemester = value =>
+    String(value).trim().toLowerCase().replace(/\s+/g, " ");
+
+const semesterMatches =
+    selectedSemester === "all" ||
+    normalizeSemester(result.semester) ===
+    normalizeSemester(selectedSemester);
 
         return yearMatches && semesterMatches;
     });
@@ -104,3 +108,15 @@ function loadResults() {
 }
 
 fetchResults();
+function toggleMenu() {
+    document.getElementById("studentMenu").classList.toggle("show");
+}
+
+function logout() {
+    localStorage.removeItem("studentToken");
+    localStorage.removeItem("studentData");
+    window.location.href = "index.html";
+}
+
+
+

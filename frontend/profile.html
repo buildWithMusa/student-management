@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Kisii University</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #12345b;
+            color: white;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 20px;
+        }
+
+        .menu {
+            position: relative;
+        }
+
+        .menu button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: white;
+            min-width: 180px;
+            box-shadow: 0 4px 12px #0002;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .menu-content a {
+            display: block;
+            padding: 13px;
+            color: #1e293b;
+            text-decoration: none;
+        }
+
+        .menu-content a:hover {
+            background: #e2e8f0;
+        }
+
+        .menu-content.show {
+            display: block;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .profile-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .profile-card h2 {
+            color: #12345b;
+            margin-bottom: 25px;
+        }
+
+        .profile-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .profile-item strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #64748b;
+        }
+
+        .profile-item span {
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>Kisii University</h2>
+
+    <div class="menu">
+        <button onclick="toggleMenu()">☰</button>
+
+        <div id="menuContent" class="menu-content">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">My Profile</a>
+            <a href="result-slip.html">My Results</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="profile-card">
+        <h2>My Student Profile</h2>
+
+        <div class="profile-item">
+            <strong>Full Name</strong>
+            <span id="studentName">Loading...</span>
+        </div>
+
+        <div class="profile-item">
+            <strong>Registration Number</strong>
+            <span id="studentReg">Loading...</span>
+        </div>
+
+        <div class="profile-item">
+            <strong>Email Address</strong>
+            <span id="studentEmail">Loading...</span>
+        </div>
+
+        <div class="profile-item">
+            <strong>Course</strong>
+            <span id="studentCourse">Loading...</span>
+        </div>
+    </div>
+</main>
+
+<script>
+function toggleMenu() {
+    document.getElementById("menuContent").classList.toggle("show");
+}
+
+function logout() {
+    localStorage.removeItem("studentToken");
+    localStorage.removeItem("studentData");
+    window.location.href = "index.html";
+}
+
+async function loadProfile() {
+    const token = localStorage.getItem("studentToken");
+
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "http://127.0.0.1:8000/student-dashboard/",
+            {
+                headers: {
+                    "Authorization": "Token " + token
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to load profile.");
+        }
+
+        const student = await response.json();
+
+        document.getElementById("studentName").textContent = student.name;
+        document.getElementById("studentReg").textContent = student.reg_number;
+        document.getElementById("studentEmail").textContent = student.email;
+        document.getElementById("studentCourse").textContent = student.course;
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

@@ -18,12 +18,14 @@ from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 
-from snippets.models import Student, Result, Lecturer, Unit
+from snippets.models import Student, Result, Lecturer, Unit, UnitRegistration
 from snippets.serializers import (
     StudentSerializer,
     UserSerializer,
     ResultSerializer,
-    BulkStudentUploadSerializer
+    BulkStudentUploadSerializer,
+    UnitSerializer,
+    UnitRegistrationSerializer,
 )
 from snippets.permissions import IsOwnerOrReadOnly
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -218,8 +220,196 @@ def student_results(request):
     serializer = ResultSerializer(results, many=True)
     return Response(serializer.data)
 
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def student_available_units(request):
+    try:
+        student = Student.objects.get(owner=request.user)
+    except Student.DoesNotExist:
+        return Response(
+            {"error": "No student profile found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    units = Unit.objects.filter(
+        course=student.course
+    ).order_by("year_of_study", "unit_type", "unit_code")
+
+    serializer = UnitSerializer(units, many=True)
+    return Response(serializer.data)
+
+
+
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def student_register_units(request):
+    try:
+        student = Student.objects.get(owner=request.user)
+    except Student.DoesNotExist:
+        return Response(
+            {"error": "No student profile found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    unit_ids = request.data.get("unit_ids")
+
+    if not isinstance(unit_ids, list) or not unit_ids:
+        return Response(
+            {"error": "Please provide a list of unit IDs."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if len(unit_ids) != len(set(unit_ids)):
+        return Response(
+            {"error": "Duplicate unit IDs are not allowed."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    units = Unit.objects.filter(
+        id__in=unit_ids,
+        course=student.course
+    )
+
+    if units.count() != len(unit_ids):
+        return Response(
+            {"error": "One or more units are invalid or unavailable for your course."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    with transaction.atomic():
+        registrations = []
+
+        for unit in units:
+            registration, created = UnitRegistration.objects.get_or_create(
+                student=student,
+                unit=unit,
+                defaults={"status": "PENDING"}
+            )
+
+            if not created and registration.status == "REJECTED":
+                registration.status = "PENDING"
+                registration.rejection_reason = ""
+                registration.reviewed_by = None
+                registration.reviewed_at = None
+                registration.save()
+
+            elif not created:
+                return Response(
+                    {
+                        "error": f"You have already registered for {unit.unit_code}."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            registrations.append(registration)
+
+    serializer = UnitRegistrationSerializer(registrations, many=True)
+
+    return Response(
+        {
+            "message": "Unit registrations submitted successfully.",
+            "registrations": serializer.data
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def student_unit_registrations(request):
+    try:
+        student = Student.objects.get(owner=request.user)
+    except Student.DoesNotExist:
+        return Response(
+            {"error": "No student profile found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    registrations = UnitRegistration.objects.filter(
+        student=student
+    ).select_related(
+        "unit", "reviewed_by"
+    ).order_by("unit__unit_code")
+
+    serializer = UnitRegistrationSerializer(
+        registrations,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def pending_unit_registrations(request):
+    registrations = UnitRegistration.objects.filter(
+        status="PENDING"
+    ).select_related(
+        "student", "unit"
+    ).order_by("submitted_at")
+
+    serializer = UnitRegistrationSerializer(
+        registrations,
+        many=True
+    )
+
+    return Response(serializer.data)
+
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
+def review_unit_registration(request, registration_id):
+    try:
+        registration = UnitRegistration.objects.get(
+            id=registration_id
+        )
+    except UnitRegistration.DoesNotExist:
+        return Response(
+            {"error": "Unit registration not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    decision = request.data.get("decision")
+
+    if decision not in ["APPROVED", "REJECTED"]:
+        return Response(
+            {"error": "Decision must be APPROVED or REJECTED."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if registration.status != "PENDING":
+        return Response(
+            {"error": "This registration has already been reviewed."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    rejection_reason = request.data.get("rejection_reason", "")
+
+    if decision == "REJECTED" and not rejection_reason.strip():
+        return Response(
+            {"error": "Please provide a rejection reason."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    registration.status = decision
+    registration.reviewed_by = request.user
+    registration.reviewed_at = timezone.now()
+    registration.rejection_reason = (
+        rejection_reason if decision == "REJECTED" else ""
+    )
+
+    registration.save()
+
+    serializer = UnitRegistrationSerializer(registration)
+
+    return Response({
+        "message": f"Unit registration {decision.lower()} successfully.",
+        "registration": serializer.data
+    })
+
+
+
+
 def register_student(request):
     name = request.data.get("name")
     reg_number = request.data.get("reg_number")
